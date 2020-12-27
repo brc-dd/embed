@@ -19,6 +19,7 @@ import { debounce } from 'debounce';
  * @property {string} embedUrl - URL scheme to embedded page. Use '<%= remote_id %>' to define a place to insert resource id
  * @property {string} html - iframe which contains embedded content
  * @property {Function} [id] - function to get resource id from RegExp groups
+ * @property {string} [attribute] - attribute to set on first child
 */
 /**
  * @typedef {object} EmbedConfig
@@ -131,7 +132,7 @@ export default class Embed {
       return container;
     }
 
-    const { html } = Embed.services[this.data.service];
+    const { html, attribute = 'src' } = Embed.services[this.data.service];
     const container = document.createElement('div');
     const caption = document.createElement('div');
     const template = document.createElement('template');
@@ -147,7 +148,7 @@ export default class Embed {
     caption.innerHTML = this.data.caption || '';
 
     template.innerHTML = html;
-    template.content.firstChild.setAttribute('src', this.data.embed);
+    template.content.firstChild.setAttribute(attribute || 'src', this.data.embed);
     template.content.firstChild.classList.add(this.CSS.content);
 
     const embedIsReady = this.embedIsReady(container);
@@ -239,7 +240,7 @@ export default class Embed {
       })
       .filter(([key, service]) => Embed.checkServiceConfig(service))
       .map(([key, service]) => {
-        const { regex, embedUrl, html, height, width, id } = service;
+        const { regex, embedUrl, html, height, width, id, attribute } = service;
 
         return [key, {
           regex,
@@ -248,6 +249,7 @@ export default class Embed {
           height,
           width,
           id,
+          attribute
         } ];
       });
 
